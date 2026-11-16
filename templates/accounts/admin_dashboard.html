@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h2>Administrator Dashboard</h2>
+<div class="row g-3 my-2">
+  <div class="col-md-4"><div class="card p-3"><h6>Total users</h6><h2>{{ total_users }}</h2></div></div>
+  <div class="col-md-4"><div class="card p-3"><h6>Students</h6><h2>{{ total_students }}</h2></div></div>
+  <div class="col-md-4"><div class="card p-3"><h6>Deactivated</h6><h2>{{ inactive_users }}</h2></div></div>
+</div>
+<h5 class="mt-4">Recently registered</h5>
+<ul class="list-group">
+  {% for u in recent_users %}
+    <li class="list-group-item">{{ u.display_name }} ({{ u.email }}) · {{ u.get_role_display }} · {{ u.created_at|date:"M d, Y" }}</li>
+  {% endfor %}
+</ul>
+<p class="mt-3 text-muted">Activity types, emission factors, badges and quests will be managed here in later phases.</p>
+{% endblock %}
