@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Quest Logger - EchoQuest{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-1">🌱 Quest Logger</h2>
+    <p class="text-muted mb-0">Record your daily sachet avoidance and eco-friendly commutes.</p>
+  </div>
+  <a href="{% url 'log_create' %}" class="btn btn-success shadow-sm">+ Log New Habit</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm border-0 bg-white">
+      <h6 class="text-muted text-uppercase small">Total Plastic Saved</h6>
+      <h3 class="text-success mb-0">{{ total_plastic|floatformat:1 }} <small class="fs-6 text-muted">grams</small></h3>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm border-0 bg-white">
+      <h6 class="text-muted text-uppercase small">Total CO₂ Reduced</h6>
+      <h3 class="text-primary mb-0">{{ total_co2|floatformat:2 }} <small class="fs-6 text-muted">kg</small></h3>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm border-0 bg-white">
+      <h6 class="text-muted text-uppercase small">Total Logs Submitted</h6>
+      <h3 class="text-dark mb-0">{{ total_logs }}</h3>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-header bg-white py-3">
+    <h5 class="mb-0 fw-bold">My Habit Logs</h5>
+  </div>
+  <div class="card-body p-0">
+    {% if logs %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Habit / Commute</th>
+              <th>Quantity</th>
+              <th>Plastic Saved</th>
+              <th>CO₂ Reduced</th>
+              <th>Notes / Proof</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in logs %}
+              <tr>
+                <td><strong>{{ log.log_date|date:"M d, Y" }}</strong></td>
+                <td>
+                  <span class="badge {% if log.activity_type.category == 'SACHET' %}bg-success{% else %}bg-primary{% endif %}">
+                    {{ log.activity_type.get_category_display }}
+                  </span>
+                </td>
+                <td>{{ log.activity_type.name }}</td>
+                <td><span class="fw-semibold">{{ log.quantity }}</span> {{ log.activity_type.get_unit_display }}</td>
+                <td>
+                  {% if log.plastic_saved_g > 0 %}
+                    <span class="text-success fw-bold">+{{ log.plastic_saved_g }} g</span>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if log.co2_saved_kg > 0 %}
+                    <span class="text-primary fw-bold">+{{ log.co2_saved_kg }} kg</span>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if log.notes %}
+                    <span class="d-inline-block text-truncate" style="max-width: 180px;" title="{{ log.notes }}">{{ log.notes }}</span>
+                  {% endif %}
+                  {% if log.proof_image %}
+                    <span class="badge bg-secondary">📷 Photo</span>
+                  {% endif %}
+                  {% if not log.notes and not log.proof_image %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    <a href="{% url 'log_detail' log.pk %}" class="btn btn-outline-secondary">View</a>
+                    <a href="{% url 'log_update' log.pk %}" class="btn btn-outline-primary">Edit</a>
+                    <a href="{% url 'log_delete' log.pk %}" class="btn btn-outline-danger">Delete</a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <h5 class="text-muted mb-2">No eco-habits recorded yet</h5>
+        <p class="text-muted mb-4">Start recording your sachet-free choices or public commute trips!</p>
+        <a href="{% url 'log_create' %}" class="btn btn-success">+ Record First Habit</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -18,4 +18,10 @@ urlpatterns = [
 
     path('profile/', views.profile_view, name='profile'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
+
+    path('logs/', views.log_list_view, name='log_list'),
+    path('logs/new/', views.log_create_view, name='log_create'),
+    path('logs/<int:pk>/', views.log_detail_view, name='log_detail'),
+    path('logs/<int:pk>/edit/', views.log_update_view, name='log_update'),
+    path('logs/<int:pk>/delete/', views.log_delete_view, name='log_delete'),
 ]

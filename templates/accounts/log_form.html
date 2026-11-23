@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_edit %}Edit Habit Log{% else %}Log an Eco-Habit{% endif %} - EchoQuest{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white py-3">
+        <h4 class="mb-0 fw-bold">{% if is_edit %}✏️ Edit Habit Log{% else %}🌱 Record New Eco-Habit{% endif %}</h4>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">{{ form.activity_type.label }} <span class="text-danger">*</span></label>
+            {{ form.activity_type }}
+            {% for error in form.activity_type.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            <small class="text-muted">Choose whether you saved sachet plastic or took eco-friendly transit.</small>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Quantity / Distance <span class="text-danger">*</span></label>
+              {{ form.quantity }}
+              {% for error in form.quantity.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+              <small class="text-muted">Pieces avoided for sachets, or kilometres travelled for transit.</small>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Date of Activity <span class="text-danger">*</span></label>
+              {{ form.log_date }}
+              {% for error in form.log_date.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+              <small class="text-muted">Within the last 7 days (cannot be future date).</small>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">{{ form.notes.label }}</label>
+            {{ form.notes }}
+            {% for error in form.notes.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Proof Photo (Optional)</label>
+            {{ form.proof_image }}
+            {% for error in form.proof_image.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            <small class="text-muted">Upload a photo of your reusable container, tumbler, or transit ticket (max 5 MB).</small>
+            {% if is_edit and log.proof_image %}
+              <div class="mt-2">
+                <small class="text-muted">Current photo:</small><br>
+                <img src="{{ log.proof_image.url }}" class="img-thumbnail" style="max-height: 100px;">
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <button type="submit" class="btn btn-success px-4 py-2 fw-semibold">
+              {% if is_edit %}Save Changes{% else %}Submit Log{% endif %}
+            </button>
+            <a href="{% if is_edit %}{% url 'log_detail' log.pk %}{% else %}{% url 'log_list' %}{% endif %}" class="btn btn-outline-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

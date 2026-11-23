@@ -44,3 +44,60 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.display_name
+
+
+class ActivityType(models.Model):
+    class Category(models.TextChoices):
+        SACHET = 'SACHET', 'Sachet Plastic'
+        TRANSPORT = 'TRANSPORT', 'Public Transport'
+
+    class Unit(models.TextChoices):
+        PIECE = 'PIECE', 'Piece'
+        KM = 'KM', 'Kilometre'
+
+    code = models.CharField(max_length=30, unique=True)
+    name = models.CharField(max_length=60)
+    category = models.CharField(max_length=20, choices=Category.choices)
+    unit = models.CharField(max_length=10, choices=Unit.choices)
+    max_quantity_per_log = models.DecimalField(max_digits=7, decimal_places=2, default=50.00)
+    max_quantity_per_day = models.DecimalField(max_digits=7, decimal_places=2, default=100.00)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.get_unit_display()})"
+
+
+class EmissionFactor(models.Model):
+    activity_type = models.ForeignKey(ActivityType, on_delete=models.PROTECT, related_name='emission_factors')
+    co2_saved_per_unit_kg = models.DecimalField(max_digits=10, decimal_places=5, default=0.0)
+    plastic_saved_per_unit_g = models.DecimalField(max_digits=10, decimal_places=3, default=0.0)
+    source_reference = models.CharField(max_length=255)
+    effective_from = models.DateField()
+    effective_to = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.activity_type.name} Factor (From {self.effective_from})"
+
+
+class HabitLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='habit_logs')
+    activity_type = models.ForeignKey(ActivityType, on_delete=models.PROTECT, related_name='logs')
+    factor = models.ForeignKey(EmissionFactor, on_delete=models.PROTECT, related_name='logs')
+    quantity = models.DecimalField(max_digits=7, decimal_places=2)
+    log_date = models.DateField()
+    notes = models.CharField(max_length=255, blank=True, null=True)
+    proof_image = models.ImageField(upload_to='proofs/', blank=True, null=True)
+    co2_saved_kg = models.DecimalField(max_digits=10, decimal_places=3, default=0.0)
+    plastic_saved_g = models.DecimalField(max_digits=10, decimal_places=3, default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-log_date', '-created_at']
+        indexes = [
+            models.Index(fields=['user', 'log_date', 'activity_type']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.display_name} - {self.activity_type.name} ({self.quantity} {self.activity_type.unit}) on {self.log_date}"
