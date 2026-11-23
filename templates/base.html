@@ -14,12 +14,12 @@
     {% if user.is_authenticated %}
       {% if user.role == 'ADMIN' %}
         <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="/admin/">Manage Users</a></li>
+        <li class="nav-item"><a class="nav-link" href="/admin/">Manage System</a></li>
       {% else %}
         <li class="nav-item"><a class="nav-link" href="{% url 'student_dashboard' %}">My Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link disabled" href="#">Quest Logger</a></li>
-        <li class="nav-item"><a class="nav-link disabled" href="#">Bayanihan Quests</a></li>
-        <li class="nav-item"><a class="nav-link disabled" href="#">Leaderboard</a></li>
+        <li class="nav-item"><a class="nav-link fw-semibold" href="{% url 'log_list' %}">Quest Logger</a></li>
+        <li class="nav-item"><a class="nav-link disabled text-white-50" href="#">Bayanihan Quests</a></li>
+        <li class="nav-item"><a class="nav-link disabled text-white-50" href="#">Leaderboard</a></li>
       {% endif %}
       <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
     {% endif %}
