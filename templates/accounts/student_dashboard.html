@@ -1,11 +1,84 @@
 {% extends 'base.html' %}
-{% block title %}Student Dashboard{% endblock %}
+{% block title %}Student Dashboard - EchoQuest{% endblock %}
 {% block content %}
-<h2>Kumusta, {{ user.display_name }}!</h2>
-<p>Track your sachet-free and public-transport habits here.</p>
-<div class="row g-3">
-  <div class="col-md-4"><div class="card p-3"><h6>Plastic saved</h6><h3>0 g</h3><small class="text-muted">Coming with Quest Logger</small></div></div>
-  <div class="col-md-4"><div class="card p-3"><h6>CO₂ reduced</h6><h3>0 kg</h3><small class="text-muted">Coming with Quest Logger</small></div></div>
-  <div class="col-md-4"><div class="card p-3"><h6>Badges</h6><h3>0</h3><small class="text-muted">Coming soon</small></div></div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-1">Kumusta, {{ user.display_name }}! 👋</h2>
+    <p class="text-muted mb-0">Track your sachet-free and low-carbon commute habits across the CIT-U campus.</p>
+  </div>
+  <a href="{% url 'log_create' %}" class="btn btn-success btn-lg shadow-sm">+ Log New Habit</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card p-3 border-0 shadow-sm text-center" style="background:#eafaf1">
+      <h6 class="text-success text-uppercase fw-bold mb-1">Plastic Saved</h6>
+      <h2 class="text-success mb-0">{{ total_plastic|floatformat:1 }} <small class="fs-6">g</small></h2>
+      <small class="text-muted">Avoided single-use tingi packets</small>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 border-0 shadow-sm text-center" style="background:#e8f4fd">
+      <h6 class="text-primary text-uppercase fw-bold mb-1">CO₂ Reduced</h6>
+      <h2 class="text-primary mb-0">{{ total_co2|floatformat:2 }} <small class="fs-6">kg</small></h2>
+      <small class="text-muted">By choosing public transit over private cars</small>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 border-0 shadow-sm text-center" style="background:#fef9e7">
+      <h6 class="text-warning text-uppercase fw-bold mb-1">Total Eco-Logs</h6>
+      <h2 class="text-dark mb-0">{{ total_logs }}</h2>
+      <small class="text-muted">Recorded eco-actions</small>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+    <h5 class="mb-0 fw-bold">Recent Habit Logs</h5>
+    <a href="{% url 'log_list' %}" class="btn btn-sm btn-outline-success">View All Logs</a>
+  </div>
+  <div class="card-body p-0">
+    {% if recent_logs %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Habit / Commute</th>
+              <th>Quantity</th>
+              <th>Plastic Saved</th>
+              <th>CO₂ Reduced</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in recent_logs %}
+              <tr>
+                <td>{{ log.log_date|date:"M d, Y" }}</td>
+                <td>
+                  <span class="badge {% if log.activity_type.category == 'SACHET' %}bg-success{% else %}bg-primary{% endif %} me-1">
+                    {{ log.activity_type.get_category_display }}
+                  </span>
+                  <strong>{{ log.activity_type.name }}</strong>
+                </td>
+                <td>{{ log.quantity }} {{ log.activity_type.get_unit_display }}</td>
+                <td><span class="text-success fw-semibold">+{{ log.plastic_saved_g }} g</span></td>
+                <td><span class="text-primary fw-semibold">+{{ log.co2_saved_kg }} kg</span></td>
+                <td class="text-end">
+                  <a href="{% url 'log_detail' log.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <p class="text-muted mb-3">You haven't logged any eco-habits yet!</p>
+        <a href="{% url 'log_create' %}" class="btn btn-success">Log Your First Habit</a>
+      </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

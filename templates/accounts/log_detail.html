@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Log Details - EchoQuest{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0 fw-bold">Eco-Habit Log #{{ log.pk }}</h4>
+        <span class="badge {% if log.activity_type.category == 'SACHET' %}bg-success{% else %}bg-primary{% endif %} fs-6">
+          {{ log.activity_type.get_category_display }}
+        </span>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <h6 class="text-muted text-uppercase small">Habit Type</h6>
+            <h5>{{ log.activity_type.name }}</h5>
+            <p class="text-muted small mb-0">{{ log.activity_type.description }}</p>
+          </div>
+          <div class="col-md-3">
+            <h6 class="text-muted text-uppercase small">Quantity</h6>
+            <h4>{{ log.quantity }} <small class="text-muted fs-6">{{ log.activity_type.get_unit_display }}</small></h4>
+          </div>
+          <div class="col-md-3">
+            <h6 class="text-muted text-uppercase small">Activity Date</h6>
+            <h5>{{ log.log_date|date:"F d, Y" }}</h5>
+          </div>
+        </div>
+
+        <hr>
+
+        <h5 class="fw-bold mb-3">Calculated Impact Savings</h5>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="card p-3 border-0 bg-light text-success">
+              <h6 class="text-uppercase small fw-bold mb-1">Plastic Waste Avoided</h6>
+              <h2>{{ log.plastic_saved_g }} <small class="fs-6">grams</small></h2>
+              <small class="text-muted">Factor: {{ log.factor.plastic_saved_per_unit_g }} g / {{ log.activity_type.get_unit_display }}</small>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card p-3 border-0 bg-light text-primary">
+              <h6 class="text-uppercase small fw-bold mb-1">CO₂ Emissions Reduced</h6>
+              <h2>{{ log.co2_saved_kg }} <small class="fs-6">kg</small></h2>
+              <small class="text-muted">Factor: {{ log.factor.co2_saved_per_unit_kg }} kg / {{ log.activity_type.get_unit_display }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-3 bg-white border mb-4">
+          <h6 class="fw-bold small text-muted text-uppercase mb-1">Factor Citation & Benchmark Source</h6>
+          <p class="mb-0 small text-secondary">📖 {{ log.factor.source_reference }} (Effective: {{ log.factor.effective_from|date:"M Y" }})</p>
+        </div>
+
+        {% if log.notes %}
+          <div class="mb-4">
+            <h6 class="text-muted text-uppercase small">Student Note</h6>
+            <div class="p-3 bg-light rounded">{{ log.notes }}</div>
+          </div>
+        {% endif %}
+
+        {% if log.proof_image %}
+          <div class="mb-4">
+            <h6 class="text-muted text-uppercase small">Proof Photo</h6>
+            <img src="{{ log.proof_image.url }}" class="img-fluid rounded border shadow-sm" style="max-height: 350px;">
+          </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <a href="{% url 'log_list' %}" class="btn btn-outline-secondary">← Back to Logs</a>
+          {% if can_edit %}
+            <div>
+              <a href="{% url 'log_update' log.pk %}" class="btn btn-primary me-2">Edit Log</a>
+              <a href="{% url 'log_delete' log.pk %}" class="btn btn-outline-danger">Delete</a>
+            </div>
+          {% else %}
+            <span class="text-muted small">Logs older than 7 days are locked and cannot be edited.</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
